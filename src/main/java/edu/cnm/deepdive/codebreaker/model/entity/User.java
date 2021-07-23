@@ -37,7 +37,7 @@ public class User {
       name = "user_id",
       updatable = false,
       nullable = false,
-      columnDefinition = "CHAR(16 FOR BIT DATA"
+      columnDefinition = "CHAR(16) FOR BIT DATA"
   )
   private UUID id;
 
@@ -85,6 +85,14 @@ public class User {
   private final List<Match> matchesParticipating = new LinkedList<>();
 
   @NonNull
+  @OrderBy("created DESC")
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private final List<Code> codes = new LinkedList<>();
+
+  //TODO Consider weather adding the one to many for guesses makes sense here.
+
+
+  @NonNull
   public UUID getId() {
     return id;
   }
@@ -128,5 +136,10 @@ public class User {
   @NonNull
   public List<Match> getMatchesParticipating() {
     return matchesParticipating;
+  }
+
+  @NonNull
+  public List<Code> getCodes() {
+    return codes;
   }
 }

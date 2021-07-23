@@ -24,6 +24,4 @@ spring:
 #            scripts:
 #              action: create
 #              create-target: docs/sql/ddl.sql
-#      hibernate:
-#        format_sql: true
 
