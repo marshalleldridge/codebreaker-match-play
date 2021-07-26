@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,6 +49,9 @@ public class Code {
   @NonNull
   @Column(nullable = false, updatable = false)
   private String pool;
+
+  @Column(nullable = false, updatable = false)
+  private int poolSize;
 
   @NonNull
   @Column(name = "code_text", nullable = false, updatable = false)
@@ -94,6 +98,10 @@ public class Code {
     this.pool = pool;
   }
 
+  public int getPoolSize() {
+    return poolSize;
+  }
+
   @NonNull
   public String getText() {
     return text;
@@ -122,5 +130,12 @@ public class Code {
   @NonNull
   public List<Guess> getGuesses() {
     return guesses;
+  }
+
+  @PrePersist
+  private void updatePoolSize() {
+    poolSize = (int) pool
+        .codePoints()
+        .count();
   }
 }

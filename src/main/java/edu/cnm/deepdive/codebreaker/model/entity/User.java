@@ -59,6 +59,11 @@ public class User {
   private boolean inactive;
 
   @NonNull
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(nullable = false, updatable = true)
+  private Date connected;
+
+  @NonNull
   @OrderBy("created DESC")
   @OneToMany(mappedBy = "originator", fetch = FetchType.LAZY,
       cascade = {
@@ -90,7 +95,6 @@ public class User {
   private final List<Code> codes = new LinkedList<>();
 
   //TODO Consider weather adding the one to many for guesses makes sense here.
-
 
   @NonNull
   public UUID getId() {
@@ -126,6 +130,15 @@ public class User {
 
   public void setInactive(boolean inactive) {
     this.inactive = inactive;
+  }
+
+  @NonNull
+  public Date getConnected() {
+    return connected;
+  }
+
+  public void setConnected(@NonNull Date connected) {
+    this.connected = connected;
   }
 
   @NonNull

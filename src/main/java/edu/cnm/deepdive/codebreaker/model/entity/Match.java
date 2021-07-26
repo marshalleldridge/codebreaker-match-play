@@ -17,6 +17,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -63,6 +64,9 @@ public class Match {
   @NonNull
   @Column(nullable = false, updatable = false)
   private String pool;
+
+  @Column(nullable = false, updatable = false)
+  private int poolSize;
 
   @NonNull
   @Temporal(TemporalType.TIMESTAMP)
@@ -124,6 +128,10 @@ public class Match {
     this.pool = pool;
   }
 
+  public int getPoolSize() {
+    return poolSize;
+  }
+
   @NonNull
   public Date getEnding() {
     return ending;
@@ -159,6 +167,13 @@ public class Match {
   @NonNull
   public List<Code> getCodes() {
     return codes;
+  }
+
+  @PrePersist
+  private void updatePoolSize() {
+    poolSize = (int) pool
+        .codePoints()
+        .count();
   }
 
   public enum Criterion {
