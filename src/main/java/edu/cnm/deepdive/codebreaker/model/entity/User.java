@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class User {
   private Date created;
 
   @NonNull
+  @JsonIgnore
   @Column(nullable = false, updatable = false, unique = true)
   private String oauthKey;
 
@@ -59,11 +61,13 @@ public class User {
   private boolean inactive;
 
   @NonNull
+  @JsonIgnore
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = true)
   private Date connected;
 
   @NonNull
+  @JsonIgnore
   @OrderBy("created DESC")
   @OneToMany(mappedBy = "originator", fetch = FetchType.LAZY,
       cascade = {
@@ -75,6 +79,7 @@ public class User {
   private final List<Match> matchesOriginated = new LinkedList<>();
 
   @NonNull
+  @JsonIgnore
   @OrderBy("created DESC")
   @JoinTable(name = "user_match_participation",
       joinColumns = {@JoinColumn(name = "user_id", nullable = false, updatable = false)},
@@ -90,6 +95,7 @@ public class User {
   private final List<Match> matchesParticipating = new LinkedList<>();
 
   @NonNull
+  @JsonIgnore
   @OrderBy("created DESC")
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private final List<Code> codes = new LinkedList<>();

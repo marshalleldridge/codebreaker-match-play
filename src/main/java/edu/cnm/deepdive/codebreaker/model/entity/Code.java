@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,15 +58,18 @@ public class Code {
   @Column(name = "code_text", nullable = false, updatable = false)
   private String text;
 
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY, optional = true)
   @JoinColumn(name = "match_id", nullable = true, updatable = false)
   private Match match;
 
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY, optional = true)
   @JoinColumn(name = "user_id", nullable = true, updatable = false)
   private User user;
 
   @NonNull
+  @JsonIgnore
   @OrderBy("created ASC")
   @OneToMany(mappedBy = "code", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
   private final List<Guess> guesses = new LinkedList<>();
