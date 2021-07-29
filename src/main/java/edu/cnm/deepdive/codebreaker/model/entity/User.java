@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -81,18 +79,8 @@ public class User {
   @NonNull
   @JsonIgnore
   @OrderBy("created DESC")
-  @JoinTable(name = "user_match_participation",
-      joinColumns = {@JoinColumn(name = "user_id", nullable = false, updatable = false)},
-      inverseJoinColumns = {@JoinColumn(name = "match_id", nullable = false, updatable = false)}
-  )
-  @ManyToMany(fetch = FetchType.LAZY,
-      cascade = {
-          CascadeType.DETACH,
-          CascadeType.MERGE,
-          CascadeType.PERSIST,
-          CascadeType.REFRESH
-      })
-  private final List<Match> matchesParticipating = new LinkedList<>();
+  @ManyToMany(fetch = FetchType.LAZY, mappedBy = "participants")
+  private final List<Match> matches = new LinkedList<>();
 
   @NonNull
   @JsonIgnore
@@ -153,8 +141,8 @@ public class User {
   }
 
   @NonNull
-  public List<Match> getMatchesParticipating() {
-    return matchesParticipating;
+  public List<Match> getMatches() {
+    return matches;
   }
 
   @NonNull

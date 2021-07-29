@@ -17,15 +17,18 @@ public class MatchService {
 
   private final MatchRepository repository;
   private final CodeService codeService;
+  private final UserService userService;
 
   @Autowired
   public MatchService(MatchRepository repository,
-      CodeService codeService) {
+      CodeService codeService, UserService userService) {
     this.repository = repository;
     this.codeService = codeService;
+    this.userService = userService;
   }
 
   public Match start(Match match, User user) {
+    user = userService.get(user.getId()).orElseThrow();
     match.setOriginator(user);
     match.getParticipants().add(user);
     List<Code> codes = match.getCodes();
