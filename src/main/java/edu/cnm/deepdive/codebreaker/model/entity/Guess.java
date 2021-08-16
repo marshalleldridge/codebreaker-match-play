@@ -1,5 +1,8 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -19,6 +22,7 @@ import org.springframework.lang.NonNull;
 public class Guess {
 
   @Id
+  @JsonProperty(access = Access.READ_ONLY)
   @GeneratedValue(generator = "uuid2")
   @GenericGenerator(name = "uuid2", strategy = "uuid2")
   @NonNull
@@ -31,6 +35,7 @@ public class Guess {
   private UUID id;
 
   @NonNull
+  @JsonProperty(access = Access.READ_ONLY)
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = false)
@@ -40,19 +45,23 @@ public class Guess {
   @Column(name = "guess_text", nullable = false, updatable = false)
   private String text;
 
+  @JsonProperty(access = Access.READ_ONLY)
   @Column(nullable = false, updatable = false)
   private int exactMatches;
 
+  @JsonProperty(access = Access.READ_ONLY)
   @Column(nullable = false, updatable = false)
   private int nearMatches;
 
   @NonNull
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "code_id", nullable = false, updatable = false)
   private Code code;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "user_id", nullable = true, updatable = false)
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false, updatable = false)
   private User user;
 
   @NonNull
