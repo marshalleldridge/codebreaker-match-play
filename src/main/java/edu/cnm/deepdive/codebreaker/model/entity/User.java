@@ -1,6 +1,11 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import java.nio.ByteBuffer;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,7 +34,10 @@ import org.springframework.lang.NonNull;
 @SuppressWarnings("JpaDataSourceORMInspection")
 public class User {
 
+  private static final Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+
   @Id
+  @JsonIgnore
   @GeneratedValue(generator = "uuid2")
   @GenericGenerator(name = "uuid2", strategy = "uuid2")
   @NonNull
@@ -39,6 +48,11 @@ public class User {
       columnDefinition = "CHAR(16) FOR BIT DATA"
   )
   private UUID id;
+
+  @NonNull
+  @Column(name = "rest_key", unique = true)
+  @JsonProperty(value = "id", access = Access.READ_ONLY)
+  private String key;
 
   @NonNull
   @CreationTimestamp
@@ -96,6 +110,11 @@ public class User {
   }
 
   @NonNull
+  public String getKey() {
+    return key;
+  }
+
+  @NonNull
   public Date getCreated() {
     return created;
   }
@@ -148,5 +167,14 @@ public class User {
   @NonNull
   public List<Code> getCodes() {
     return codes;
+  }
+
+  @PrePersist
+  private void setAdditionalFields() {
+    UUID uuid = UUID.randomUUID();
+    ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+    buffer.putLong(uuid.getMostSignificantBits());
+    buffer.putLong(uuid.getLeastSignificantBits());
+    key = ENCODER.encodeToString(buffer.array());
   }
 }

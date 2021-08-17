@@ -1,5 +1,11 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import java.nio.ByteBuffer;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +32,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
 
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(
     name = "codebreaker_match",
@@ -35,25 +42,30 @@ import org.springframework.lang.NonNull;
         @Index(columnList = "ending")
     }
 )
-@SuppressWarnings("unused")
 public class Match {
+
+  private static final Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
 
   @Id
   @GeneratedValue(generator = "uuid2")
   @GenericGenerator(name = "uuid2", strategy = "uuid2")
-  @NonNull
   @Column(
-      name = "match_id",
-      updatable = false,
-      nullable = false,
+      name = "match_id", nullable = false, updatable = false,
       columnDefinition = "CHAR(16) FOR BIT DATA"
   )
+  @NonNull
+  @JsonIgnore
   private UUID id;
 
+  @Column(name = "rest_key", unique = true)
   @NonNull
+  @JsonProperty(value = "id", access = Access.READ_ONLY)
+  private String key;
+
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = false)
+  @NonNull
   private Date created;
 
   @Column(nullable = false, updatable = false)
@@ -62,52 +74,52 @@ public class Match {
   @Column(nullable = false, updatable = false)
   private int codeLength;
 
-  @NonNull
   @Column(nullable = false, updatable = false)
+  @NonNull
   private String pool;
 
   @Column(nullable = false, updatable = false)
   private int poolSize;
 
-  @NonNull
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = false)
+  @NonNull
   private Date ending;
 
-  @NonNull
   @Enumerated
   @Column(nullable = false, updatable = false)
+  @NonNull
   private Criterion criterion;
 
-  @NonNull
   @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "originator_id", nullable = false, updatable = false)
+  @NonNull
   private User originator;
 
-  @NonNull
-  @OrderBy("displayName ASC")
   @ManyToMany(fetch = FetchType.LAZY,
-  cascade = {
-      CascadeType.DETACH,
-      CascadeType.MERGE,
-      CascadeType.PERSIST,
-      CascadeType.REFRESH
-  })
+      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   @JoinTable(
       name = "user_match_participation",
       joinColumns = {@JoinColumn(name = "match_id", nullable = false, updatable = false)},
       inverseJoinColumns = {@JoinColumn(name = "user_id", nullable = false, updatable = false)}
   )
+  @OrderBy("displayName ASC")
+  @NonNull
   private final List<User> participants = new LinkedList<>();
 
-  @NonNull
-  @OrderBy("created ASC")
   @OneToMany(mappedBy = "match", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+  @OrderBy("created ASC")
+  @NonNull
   private final List<Code> codes = new LinkedList<>();
 
   @NonNull
   public UUID getId() {
     return id;
+  }
+
+  @NonNull
+  public String getKey() {
+    return key;
   }
 
   @NonNull
@@ -182,10 +194,15 @@ public class Match {
   }
 
   @PrePersist
-  private void updatePoolSize() {
+  private void setAdditionalFields() {
     poolSize = (int) pool
         .codePoints()
         .count();
+    UUID uuid = UUID.randomUUID();
+    ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+    buffer.putLong(uuid.getMostSignificantBits());
+    buffer.putLong(uuid.getLeastSignificantBits());
+    key = ENCODER.encodeToString(buffer.array());
   }
 
   public enum Criterion {
